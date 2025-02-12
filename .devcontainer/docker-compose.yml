@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/go:1-1.23-bookworm
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    extra_hosts:
+      - "chintai.fudousan21.local:host-gateway"
+      - "baibai.fudousan21.local:host-gateway"
+      - "localhost.local:host-gateway"
+

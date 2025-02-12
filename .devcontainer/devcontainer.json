@@ -1,0 +1,35 @@
+{
+	"name": "Go",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspace",
+
+	"remoteEnv": {
+		"HOST_DOMAIN": "host.docker.internal"
+	},
+
+	"postCreateCommand": "if [ -f ./.devcontainer/scripts/post_create.sh ]; then /bin/bash ./.devcontainer/scripts/post_create.sh; fi",
+	"postStartCommand": "if [ -f ./.devcontainer/scripts/post_start.sh ]; then /bin/bash ./.devcontainer/scripts/post_start.sh; fi",
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"mikestead.dotenv",
+				"hediet.vscode-drawio",
+				"EditorConfig.EditorConfig",
+				"dbaeumer.vscode-eslint",
+				"bierner.github-markdown-preview",
+				"shd101wyy.markdown-preview-enhanced",
+				"oderwat.indent-rainbow",
+				"yzhang.markdown-all-in-one",
+				"DavidAnson.vscode-markdownlint",
+				"vscode-icons-team.vscode-icons",
+				"redhat.vscode-yaml",
+				"ICS.japanese-proofreading",
+				"golang.go"
+			]
+		}
+	},
+
+	"remoteUser": "vscode"
+}
