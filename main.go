@@ -19,8 +19,6 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-var executionTimestamp string
-
 type (
 	URLSet struct {
 		XMLName xml.Name `xml:"urlset"`
@@ -224,7 +222,7 @@ func main() {
 		WaitTime:          time.Duration(waitTime) * time.Second,
 		Devices:           getDefaultDevices(),
 		Concurrency:       concurrency,
-		executionDateTime: executionDateTime, // 追加
+		executionDateTime: executionDateTime,
 	}
 
 	if err := generator.processURLs(urls); err != nil {
