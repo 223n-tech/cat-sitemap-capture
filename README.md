@@ -12,10 +12,10 @@
   * golang
   * chromedp
   * progressbar
-* 実行するには、次のうち、いずれかのブラウザが必要です。
+* ブラウザ（いずれかが必要）
   * Google Chrome
   * Chromium
-* 日本語サポートのため、フォントが必要です。
+* 日本語フォントなど（日本語サイトへの対応）
   * 各種日本語フォント
   * 言語パック
   * ロケール設定
@@ -60,14 +60,26 @@ go run main.go \
 
 ## 出力ディレクトリ構造
 
+* `screenshots` : 大元のフォルダーです。
+  * `yyyyMMdd_hhmmss` : 実行日時で生成されたフォルダーです。
+    * `desktop`, `tablet`, `smartphone` : 端末環境ごとに生成されたフォルダーです。
+      * `{url}.png` : エンコードされたURLが使用されたpngファイルです。
+
 ```sh
 screenshots/
   ├── 20250213_141530/      # 1回目の実行（2025年2月13日 14:15:30）
   │   ├── desktop/
+  │   │   └── https_3A_2F_2Fharu.223n.tech_2F.png
   │   ├── tablet/
+  │   │   └── https_3A_2F_2Fharu.223n.tech_2F.png
   │   └── smartphone/
+  │        └── https_3A_2F_2Fharu.223n.tech_2F.png
+  │
   └── 20250213_142045/      # 2回目の実行（2025年2月13日 14:20:45）
-      ├── desktop/
-      ├── tablet/
-      └── smartphone/
+        ├── desktop/
+        │   └── https_3A_2F_2Fharu.223n.tech_2F.png
+        ├── tablet/
+        │   └── https_3A_2F_2Fharu.223n.tech_2F.png
+        └── smartphone/
+             └── https_3A_2F_2Fharu.223n.tech_2F.png
 ```
