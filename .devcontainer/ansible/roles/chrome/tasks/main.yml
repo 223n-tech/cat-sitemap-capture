@@ -1,0 +1,32 @@
+---
+- name: Check if Chrome is installed
+  command: dpkg-query -W google-chrome-stable
+  register: chrome_check_deb
+  failed_when: chrome_check_deb.rc > 1
+  changed_when: false
+  ignore_errors: true
+
+- name: Download Chrome signing key
+  get_url:
+    url: https://dl.google.com/linux/linux_signing_key.pub
+    dest: /tmp/google_signing_key.pub
+  when: chrome_check_deb.rc == 1
+
+- name: Add Chrome signing key
+  ansible.builtin.command:
+    cmd: gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg /tmp/google_signing_key.pub
+  when: chrome_check_deb.rc == 1
+
+- name: Add Chrome repository
+  apt_repository:
+    repo: deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main
+    filename: google-chrome
+    state: present
+  when: chrome_check_deb.rc == 1
+
+- name: Install Chrome
+  apt:
+    name: google-chrome-stable
+    state: present
+    update_cache: yes
+  when: chrome_check_deb.rc == 1

@@ -1,0 +1,23 @@
+---
+- name: Install Japanese fonts and language support
+  apt:
+    name: "{{ japanese_packages }}"
+    state: present
+  vars:
+    japanese_packages:
+      - fonts-noto-cjk
+      - fonts-noto-cjk-extra
+      - fonts-ipafont
+      - fonts-ipaexfont
+      - fonts-vlgothic
+      - language-pack-ja
+      - language-pack-ja-base
+
+- name: Generate Japanese locale
+  locale_gen:
+    name: ja_JP.UTF-8
+    state: present
+
+- name: Update font cache
+  command: fc-cache -f -v
+  changed_when: false

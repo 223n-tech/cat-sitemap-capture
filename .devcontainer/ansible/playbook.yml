@@ -1,0 +1,8 @@
+---
+- name: Setup development environment
+  hosts: localhost
+  become: true
+  roles:
+    - base
+    - chrome
+    - japanese

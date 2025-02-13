@@ -1,0 +1,42 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install base packages
+  apt:
+    name: "{{ base_packages }}"
+    state: present
+  vars:
+    base_packages:
+      - wget
+      - curl
+      - git
+      - build-essential
+      - ca-certificates
+      - apt-transport-https
+      - software-properties-common
+      - gnupg2
+
+- name: Create workspace directory
+  file:
+    path: /workspace/screenshot-generator
+    state: directory
+    mode: '0755'
+
+- name: Initialize Go module
+  command:
+    cmd: go mod init screenshot-generator
+    chdir: /workspace/screenshot-generator
+  args:
+    creates: /workspace/screenshot-generator/go.mod
+
+- name: Install Go dependencies
+  command:
+    cmd: "{{ item }}"
+    chdir: /workspace/screenshot-generator
+  with_items:
+    - go get github.com/chromedp/chromedp
+    - go get github.com/schollz/progressbar/v3
+  when: not ansible_check_mode

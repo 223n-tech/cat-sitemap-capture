@@ -9,4 +9,3 @@ services:
       - "chintai.fudousan21.local:host-gateway"
       - "baibai.fudousan21.local:host-gateway"
       - "localhost.local:host-gateway"
-

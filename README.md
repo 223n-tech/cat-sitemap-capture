@@ -4,7 +4,7 @@
 
 * このスクリプトでは、sitemap.xmlにあるすべてのページのスクリーンショット画像を取得します。
 
-## インストール
+## 開発環境の構築
 
 ### 必要なもの
 
@@ -82,4 +82,16 @@ screenshots/
         │   └── https_3A_2F_2Fharu.223n.tech_2F.png
         └── smartphone/
              └── https_3A_2F_2Fharu.223n.tech_2F.png
+```
+
+## ビルド
+
+* makeコマンドを実行するか、スクリプトを実行してください。
+
+```sh
+make
+```
+
+```sh
+./scripts/build.sh
 ```
