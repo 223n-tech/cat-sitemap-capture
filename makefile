@@ -9,4 +9,4 @@ build:
 
 # クリーンアップ
 clean:
-	@rm -rf build/
+	@rm -rf build
