@@ -19,24 +19,11 @@
       - software-properties-common
       - gnupg2
 
-- name: Create workspace directory
-  file:
-    path: /workspace/screenshot-generator
-    state: directory
-    mode: '0755'
-
-- name: Initialize Go module
-  command:
-    cmd: go mod init screenshot-generator
-    chdir: /workspace/screenshot-generator
-  args:
-    creates: /workspace/screenshot-generator/go.mod
-
 - name: Install Go dependencies
+  become: false
   command:
     cmd: "{{ item }}"
-    chdir: /workspace/screenshot-generator
+    chdir: /workspace/
   with_items:
     - go get github.com/chromedp/chromedp
     - go get github.com/schollz/progressbar/v3
-  when: not ansible_check_mode
