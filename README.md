@@ -24,18 +24,20 @@
 
 * 次のスクリプトを管理者権限で実行することで、必要なパッケージなどを自動的にインストールします。
 
-```bash
-sudo bash ./install_debian.sh
+```sh
+sudo bash ./scripts/install_debian.sh
 ```
 
 ## 使い方
 
 * 次のコマンドで、実行されます。
 
-```go
+```sh
 # 基本的な使用方法
 go run main.go -sitemap https://haru.223n.tech/sitemap.xml
+```
 
+```sh
 # 詳細なオプションを指定
 go run main.go \
   -sitemap https://haru.223n.tech/sitemap.xml \
@@ -43,6 +45,15 @@ go run main.go \
   -wait 10 \
   -concurrency 5
 ```
+
+* 主な引数は、下表にまとめています。
+
+| 引数         | 引数名                              | 設定例                               | 備考                                                     |
+| ------------ | ----------------------------------- | ------------------------------------ | -------------------------------------------------------- |
+| -sitemap     | サイトマップのURLまたはファイルパス | `https://haru.223n.tech/sitemap.xml` |                                                          |
+| -output      | 出力先のパス                        | `./screenshots`                      |                                                          |
+| -wait        | 待機時間                            | `10`                                 | JavaScriptが実行完了するまでの待機時間などに使用します。 |
+| -concurrency | 同時実行数                          | `5`                                  |                                                          |
 
 ## 特徴
 
@@ -95,3 +106,7 @@ make
 ```sh
 ./scripts/build.sh
 ```
+
+## 名前の由来
+
+* 「猫の手を借りたい」という開発者の仕事を、代わりに手伝ってくれます
