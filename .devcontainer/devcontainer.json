@@ -3,14 +3,6 @@
     "dockerComposeFile": "docker-compose.yml",
     "service": "app",
     "workspaceFolder": "/workspace",
-    "features": {
-        "ghcr.io/devcontainers/features/common-utils:2": {
-            "installZsh": true,
-            "configureZshAsDefaultShell": false,
-            "installOhMyZsh": true,
-            "upgradePackages": true
-        }
-    },
     "postCreateCommand": "sudo /bin/bash .devcontainer/scripts/post_create.sh",
     "postStartCommand": "/bin/bash .devcontainer/scripts/post_start.sh",
     "customizations": {

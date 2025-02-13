@@ -18,6 +18,7 @@
       - apt-transport-https
       - software-properties-common
       - gnupg2
+      - dos2unix
 
 - name: Install Go dependencies
   become: false
