@@ -10,8 +10,6 @@
       - fonts-ipafont
       - fonts-ipaexfont
       - fonts-vlgothic
-      - language-pack-ja
-      - language-pack-ja-base
 
 - name: Generate Japanese locale
   locale_gen:
