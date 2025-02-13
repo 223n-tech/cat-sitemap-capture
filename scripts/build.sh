@@ -4,7 +4,7 @@
 set -e
 
 # ビルド設定
-APP_NAME="cat-sitemap-capture"
+APP_NAME="Cat-Sitemap-Capture"
 BUILD_DIR="build"
 VERSION=$(git describe --tags --always --dirty)
 BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
