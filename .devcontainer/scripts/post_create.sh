@@ -42,6 +42,6 @@ main() {
 mkdir -p /workspace/log
 
 # スクリプトの実行
-main "$@" 2>&1 | tee -a "/workspace/log/$(date +'%Y-%m-%d-%H-%M-%S')_devcontainer-setup.log"
+main "$@" 2>&1 | tee -a "/workspace/log/$(date +'%Y-%m-%d-%H-%M-%S')_devcontainer-create.log"
 
 echo $?
