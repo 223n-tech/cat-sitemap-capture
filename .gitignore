@@ -30,3 +30,6 @@ screenshots/*
 
 # build
 /build
+
+# log
+/log
