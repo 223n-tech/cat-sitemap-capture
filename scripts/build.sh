@@ -6,7 +6,7 @@ set -e
 # ビルド設定
 APP_NAME="cat-sitemap-capture"
 MODULE_NAME="github.com/223n-tech/cat-sitemap-capture"
-BUILD_DIR="build"
+BUILD_DIR="/workspace/build"
 DIST_DIR="${BUILD_DIR}/dist"
 SCRIPTS_DIR="${BUILD_DIR}/scripts"
 VERSION=$(git describe --tags --always --dirty)
@@ -154,12 +154,14 @@ function create_archive() {
     if [ "${os}" = "windows" ]; then
         log "Creating ZIP archive for ${os}/${arch}..."
         cd "${BUILD_DIR}" || exit
-        /usr/bin/zip -q -r "${DIST_DIR}/${dir_name}.zip" "${os}_${arch}"
+        /usr/bin/zip -q -r "${dir_name}.zip" "${os}_${arch}"
+        /usr/bin/mv "${dir_name}.zip" "${DIST_DIR}/"
         cd - > /dev/null || exit
     else
         log "Creating tar.gz archive for ${os}/${arch}..."
         cd "${BUILD_DIR}" || exit
-        /usr/bin/tar czf "${DIST_DIR}/${dir_name}.tar.gz" "${os}_${arch}"
+        /usr/bin/tar czf "${dir_name}.tar.gz" "${os}_${arch}"
+        /usr/bin/mv "${dir_name}.tar.gz" "${DIST_DIR}/"
         cd - > /dev/null || exit
     fi
 }
@@ -252,5 +254,8 @@ function main() {
     log "Upgrade scripts are available in: ${SCRIPTS_DIR}"
 }
 
+# ログフォルダの生成
+mkdir -p /workspace/log
+
 # スクリプトの実行
-main "$@"
+main "$@" 2>&1 | tee -a "/workspace/log/$(date +'%Y-%m-%d-%H-%M-%S')_build.log"
