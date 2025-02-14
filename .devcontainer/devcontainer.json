@@ -11,8 +11,8 @@
             "upgradePackages": true
         }
     },
-    "postCreateCommand": "sudo bash .devcontainer/scripts/post_create.sh",
-    "postStartCommand": "sudo bash .devcontainer/scripts/post_start.sh",
+    "postCreateCommand": "bash .devcontainer/scripts/post_create.sh",
+    "postStartCommand": "bash .devcontainer/scripts/post_start.sh",
     "customizations": {
         "vscode": {
             "extensions": [
