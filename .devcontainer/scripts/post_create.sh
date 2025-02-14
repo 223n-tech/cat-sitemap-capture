@@ -39,7 +39,7 @@ main() {
     # Ansible Playbookの実行
     log "Running Ansible playbook..."
     cd /workspace/.devcontainer/ansible
-    ansible-playbook playbook.yml
+    ansible-playbook playbook.yml -i 'localhost,' -c local
 
     log "Setup completed successfully"
 }
