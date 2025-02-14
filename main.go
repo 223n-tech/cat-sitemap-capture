@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,79 +18,93 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-type (
-	URLSet struct {
-		XMLName xml.Name `xml:"urlset"`
-		URLs    []struct {
-			Loc string `xml:"loc"`
-		} `xml:"url"`
-	}
-	SitemapIndex struct {
-		XMLName  xml.Name `xml:"sitemapindex"`
-		Sitemaps []struct {
-			Loc string `xml:"loc"`
-		} `xml:"sitemap"`
-	}
-	DeviceProfile struct {
-		Name, UserAgent string
-		Width, Height   int
-		Mobile          bool
-	}
-)
-
-type ScreenshotGenerator struct {
-	OutputDir         string
-	WaitTime          time.Duration
-	Devices           []DeviceProfile
-	Concurrency       int
-	executionDateTime string
-	progressBar       *progressbar.ProgressBar
-	errorCount        int
-	mutex             sync.Mutex
+// XML構造体の定義
+type URLSet struct {
+	XMLName xml.Name `xml:"urlset"`
+	URLs    []URL    `xml:"url"`
 }
 
+type URL struct {
+	Loc string `xml:"loc"`
+}
+
+type SitemapIndex struct {
+	XMLName  xml.Name  `xml:"sitemapindex"`
+	Sitemaps []Sitemap `xml:"sitemap"`
+}
+
+type Sitemap struct {
+	Loc string `xml:"loc"`
+}
+
+// DeviceProfile はデバイスの設定を定義
+type DeviceProfile struct {
+	Name      string
+	Width     int
+	Height    int
+	Mobile    bool
+	UserAgent string
+}
+
+// ScreenshotGenerator はスクリーンショット生成の設定を保持
+type ScreenshotGenerator struct {
+	OutputDir   string
+	WaitTime    time.Duration
+	Devices     []DeviceProfile
+	Concurrency int
+	progressBar *progressbar.ProgressBar
+	errorCount  int
+	mutex       sync.Mutex
+}
+
+// getDefaultDevices はデフォルトのデバイスプロファイルを返す
 func getDefaultDevices() []DeviceProfile {
 	return []DeviceProfile{
 		{
-			Name: "desktop", Width: 1920, Height: 1080,
+			Name:      "desktop",
+			Width:     1920,
+			Height:    1080,
+			Mobile:    false,
 			UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36",
 		},
 		{
-			Name: "tablet", Width: 1024, Height: 768, Mobile: true,
+			Name:      "tablet",
+			Width:     1024,
+			Height:    768,
+			Mobile:    true,
 			UserAgent: "Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15",
 		},
 		{
-			Name: "smartphone", Width: 375, Height: 667, Mobile: true,
+			Name:      "smartphone",
+			Width:     375,
+			Height:    667,
+			Mobile:    true,
 			UserAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15",
 		},
 	}
 }
 
-func (sg *ScreenshotGenerator) generateOutputDir(deviceName string) string {
-	deviceDir := filepath.Join(sg.OutputDir, sg.executionDateTime, deviceName)
-	os.MkdirAll(deviceDir, 0755)
-	return deviceDir
-}
-
+// extractURLs はサイトマップからURLを抽出
 func extractURLs(sitemapURL string) ([]string, error) {
 	resp, err := http.Get(sitemapURL)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch sitemap: %v", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read response body: %v", err)
 	}
 
-	// Try sitemapindex first
+	// まずsitemapindexとしてパースを試みる
 	var sitemapIndex SitemapIndex
 	if err := xml.Unmarshal(body, &sitemapIndex); err == nil && len(sitemapIndex.Sitemaps) > 0 {
 		var allURLs []string
 		for _, sitemap := range sitemapIndex.Sitemaps {
 			urls, err := extractURLs(sitemap.Loc)
 			if err != nil {
+				log.Printf("Warning: Failed to process sitemap %s: %v", sitemap.Loc, err)
 				continue
 			}
 			allURLs = append(allURLs, urls...)
@@ -99,10 +112,10 @@ func extractURLs(sitemapURL string) ([]string, error) {
 		return allURLs, nil
 	}
 
-	// Try urlset
+	// urlsetとしてパースを試みる
 	var urlset URLSet
 	if err := xml.Unmarshal(body, &urlset); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse XML: %v", err)
 	}
 
 	urls := make([]string, 0, len(urlset.URLs))
@@ -111,54 +124,66 @@ func extractURLs(sitemapURL string) ([]string, error) {
 			urls = append(urls, u.Loc)
 		}
 	}
+
+	if len(urls) == 0 {
+		return nil, fmt.Errorf("no URLs found in sitemap")
+	}
+
 	return urls, nil
 }
 
+// captureScreenshot はスクリーンショットを撮影
 func (sg *ScreenshotGenerator) captureScreenshot(ctx context.Context, targetURL string, device DeviceProfile) error {
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),
 		chromedp.Flag("disable-gpu", true),
 		chromedp.Flag("no-sandbox", true),
+		chromedp.Flag("disable-web-security", true),
+		chromedp.Flag("ignore-certificate-errors", true),
 		chromedp.UserAgent(device.UserAgent),
 	)
+
+	dateDir := time.Now().Format("20060102_150405")
+	deviceDir := filepath.Join(sg.OutputDir, dateDir, device.Name)
+	if err := os.MkdirAll(deviceDir, 0755); err != nil {
+		return fmt.Errorf("failed to create directory: %v", err)
+	}
 
 	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
 	defer cancel()
 
-	taskCtx, cancel := chromedp.NewContext(allocCtx)
+	taskCtx, cancel := chromedp.NewContext(allocCtx,
+		chromedp.WithLogf(log.Printf),
+	)
 	defer cancel()
 
-	taskCtx, cancel = context.WithTimeout(taskCtx, time.Minute*2)
-	defer cancel()
-
-	deviceDir := sg.generateOutputDir(device.Name)
-	filename := fmt.Sprintf("%s.png", strings.ReplaceAll(url.QueryEscape(targetURL), "%", "_"))
+	filename := fmt.Sprintf("%s.png", strings.ReplaceAll(targetURL, "/", "_"))
 	outputPath := filepath.Join(deviceDir, filename)
 
 	var buf []byte
-	err := chromedp.Run(taskCtx,
+	if err := chromedp.Run(taskCtx,
 		chromedp.EmulateViewport(int64(device.Width), int64(device.Height)),
 		chromedp.Navigate(targetURL),
 		chromedp.Sleep(sg.WaitTime),
 		chromedp.FullScreenshot(&buf, 100),
-	)
-	if err != nil {
-		return err
+	); err != nil {
+		return fmt.Errorf("failed to capture screenshot: %v", err)
 	}
 
-	return os.WriteFile(outputPath, buf, 0644)
+	if err := os.WriteFile(outputPath, buf, 0644); err != nil {
+		return fmt.Errorf("failed to save screenshot: %v", err)
+	}
+
+	return nil
 }
 
+// processURLs は複数のURLを処理
 func (sg *ScreenshotGenerator) processURLs(urls []string) error {
-	totalTasks := len(urls) * len(sg.Devices)
-	sg.progressBar = progressbar.New(totalTasks)
-
 	ctx := context.Background()
 	sem := make(chan bool, sg.Concurrency)
 	var wg sync.WaitGroup
 
 	for _, targetURL := range urls {
-		log.Printf("URL: %s\n", targetURL)
 		for _, device := range sg.Devices {
 			wg.Add(1)
 			sem <- true
@@ -208,26 +233,21 @@ func main() {
 		log.Fatal("サイトマップのURLを指定してください")
 	}
 
-	// 実行時のタイムスタンプを生成
-	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
-	executionDateTime := time.Now().In(jst).Format("20060102_150405")
-
 	urls, err := extractURLs(sitemapURL)
 	if err != nil {
 		log.Fatalf("URLの抽出に失敗: %v", err)
 	}
 
+	totalTasks := len(urls) * len(getDefaultDevices())
 	generator := &ScreenshotGenerator{
-		OutputDir:         outputDir,
-		WaitTime:          time.Duration(waitTime) * time.Second,
-		Devices:           getDefaultDevices(),
-		Concurrency:       concurrency,
-		executionDateTime: executionDateTime,
+		OutputDir:   outputDir,
+		WaitTime:    time.Duration(waitTime) * time.Second,
+		Devices:     getDefaultDevices(),
+		Concurrency: concurrency,
+		progressBar: progressbar.Default(int64(totalTasks)),
 	}
 
 	if err := generator.processURLs(urls); err != nil {
 		log.Fatalf("スクリーンショット生成エラー: %v", err)
 	}
-
-	log.Printf("出力ディレクトリ: %s/%s\n", outputDir, executionDateTime)
 }

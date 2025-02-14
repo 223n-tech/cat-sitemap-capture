@@ -1,0 +1,34 @@
+run:
+  timeout: 5m
+  go: '1.23'
+  tests: true
+
+linters:
+  disable-all: true
+  enable:
+    - gofmt
+    - revive
+    - govet
+    - gosimple
+    - staticcheck
+    - errcheck
+    - ineffassign
+    - misspell
+    - unused
+    - gosec
+
+linters-settings:
+  govet:
+    enable:
+      - shadow
+  gosec:
+    excludes:
+      - G204 # Command execution
+      - G107 # HTTP request without timeout
+
+issues:
+  exclude-dirs:
+    - vendor
+    - build
+  max-issues-per-linter: 0
+  max-same-issues: 0

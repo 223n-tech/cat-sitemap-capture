@@ -6,25 +6,26 @@
 
 - name: Install base packages
   apt:
-    name: "{{ base_packages }}"
+    name: "{{ item }}"
     state: present
-  vars:
-    base_packages:
-      - wget
-      - curl
-      - git
-      - build-essential
-      - ca-certificates
-      - apt-transport-https
-      - software-properties-common
-      - gnupg2
-      - dos2unix
-
-- name: Install Go dependencies
-  become: false
-  command:
-    cmd: "{{ item }}"
-    chdir: /workspace/
   with_items:
-    - go get github.com/chromedp/chromedp
-    - go get github.com/schollz/progressbar/v3
+    - wget
+    - curl
+    - git
+    - build-essential
+    - ca-certificates
+    - apt-transport-https
+    - software-properties-common
+    - gnupg2
+    - zip
+    - unzip
+    - tar
+    - python3-pip
+    - ansible-lint
+
+- name: Install Python packages globally
+  pip:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - ansible-lint
