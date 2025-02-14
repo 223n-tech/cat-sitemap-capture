@@ -46,8 +46,8 @@ function load_build_matrix() {
 # ビルドディレクトリの準備
 function prepare_dirs() {
     log "Preparing build directories..."
-    /usr/bin/mkdir -p "${BUILD_DIR}" "${DIST_DIR}" "${SCRIPTS_DIR}"
     /usr/bin/rm -rf "${BUILD_DIR:?}"/* "${DIST_DIR:?}"/* "${SCRIPTS_DIR:?}"/*
+    /usr/bin/mkdir -p "${BUILD_DIR}" "${DIST_DIR}" "${SCRIPTS_DIR}"
 }
 
 # アップグレードスクリプトの生成
