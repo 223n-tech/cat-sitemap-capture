@@ -91,9 +91,9 @@ EOF
     log "Fetching documentation..."
     mkdir -p "pkg/${MODULE_NAME}"
     wget --recursive --no-parent --no-host-directories --cut-dirs=3 \
-         --reject "index.html*" \
-         --directory-prefix="pkg/${MODULE_NAME}" \
-         http://localhost:6060/pkg/${MODULE_NAME}/
+        --reject "index.html*" \
+        --directory-prefix="pkg/${MODULE_NAME}" \
+        http://localhost:6060/pkg/${MODULE_NAME}/
     
     # godocサーバーの停止
     log "Stopping godoc server..."
@@ -150,4 +150,10 @@ function main() {
     log "All documentation and reports generated successfully"
 }
 
-main "$@"
+
+# ログフォルダの生成
+mkdir -p /workspace/log
+
+# スクリプトの実行
+main "$@" 2>&1 | tee -a "/workspace/log/$(date +'%Y-%m-%d-%H-%M-%S')_generate_docs.log"
+
