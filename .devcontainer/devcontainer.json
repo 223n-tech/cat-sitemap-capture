@@ -3,8 +3,16 @@
     "dockerComposeFile": "docker-compose.yml",
     "service": "app",
     "workspaceFolder": "/workspace",
-    "postCreateCommand": "sudo /bin/bash .devcontainer/scripts/post_create.sh",
-    "postStartCommand": "/bin/bash .devcontainer/scripts/post_start.sh",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": true,
+            "configureZshAsDefaultShell": true,
+            "installOhMyZsh": true,
+            "upgradePackages": true
+        }
+    },
+    "postCreateCommand": "bash .devcontainer/scripts/post_create.sh",
+    "postStartCommand": "bash .devcontainer/scripts/post_start.sh",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -23,7 +31,13 @@
                 "vscode-icons-team.vscode-icons",
                 "redhat.vscode-yaml",
                 "ICS.japanese-proofreading"
-            ]
+            ],
+            "settings": {
+                "ansible.ansible.path": "/usr/bin/ansible",
+                "ansible.ansibleLint.path": "/usr/local/bin/ansible-lint",
+                "ansible.validation.lint.enabled": true,
+                "ansible.validation.lint.path": "/usr/local/bin/ansible-lint"
+            }
         }
     },
     "remoteUser": "vscode"
